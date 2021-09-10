@@ -8,9 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/logging-service")
-public class LoggingServiceController {
+public class LoggingController {
 
-    private final Map<UUID, String> messages = new ConcurrentHashMap<>();
+    private final LoggingService loggingService;
+
+    public LoggingController(LoggingService loggingService) {
+        this.loggingService = loggingService;
+    }
 
     private void log(String log) {
         System.out.println(log);
@@ -18,13 +22,13 @@ public class LoggingServiceController {
 
     @PostMapping
     public void postLoggedMessage(@RequestBody Message message) {
-        log("Facade service sent a post request with message object: " + message);
-        messages.put(message.getUuid(), message.getText());
+        log("LoggingController post message: " + message);
+        loggingService.addMessage(message);
     }
 
     @GetMapping
     public String getLoggedMessages() {
-        log("Facade service sent a get request");
-        return messages.values().toString();
+        log("LoggingController get messages");
+        return loggingService.getMessages();
     }
 }
