@@ -1,5 +1,0 @@
-<<<<<<< HEAD
-Changed_text.
-=======
-Hello_Universe. It's me!
->>>>>>> new_branch
