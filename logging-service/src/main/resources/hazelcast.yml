@@ -1,0 +1,4 @@
+hazelcast:
+  map:
+    default:
+      backup-count: 2
