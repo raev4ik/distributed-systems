@@ -11,15 +11,15 @@ public class HazelcastClientNodeDMOptiLock {
         HazelcastInstance hz = HazelcastClient.newHazelcastClient();
         IMap<String, Value> map = hz.getMap( "mapOptiLock" );
         String key = "1";
-        map.put( key, new Value() );
+        if (map.get(key) == null) {map.put( key, new Value());}
         System.out.println( "Starting" );
         for ( int k = 0; k < 1000; k++ ) {
             if ( k % 100 == 0 ) System.out.println( "At: " + k );
             for (; ; ) {
                 Value oldValue = map.get( key );
                 Value newValue = new Value( oldValue );
-                Thread.sleep( 10 );
                 newValue.amount++;
+                Thread.sleep( 10 );
                 if ( map.replace( key, oldValue, newValue ) )
                     break;
             }
