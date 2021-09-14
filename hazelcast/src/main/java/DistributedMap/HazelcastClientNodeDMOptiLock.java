@@ -11,7 +11,6 @@ public class HazelcastClientNodeDMOptiLock {
         HazelcastInstance hz = HazelcastClient.newHazelcastClient();
         IMap<String, Value> map = hz.getMap( "mapOptiLock" );
         String key = "1";
-        map.putIfAbsent(key, new Value());
         System.out.println( "Starting" );
         for ( int k = 0; k < 1000; k++ ) {
             if ( k % 100 == 0 ) System.out.println( "At: " + k );

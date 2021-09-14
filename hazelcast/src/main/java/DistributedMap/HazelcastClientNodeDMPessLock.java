@@ -11,7 +11,6 @@ public class HazelcastClientNodeDMPessLock {
         HazelcastInstance hz = HazelcastClient.newHazelcastClient();
         IMap<String, Value> map = hz.getMap( "mapPessLock" );
         String key = "1";
-        map.putIfAbsent(key, new Value());
         System.out.println( "Starting" );
         for ( int k = 0; k < 1000; k++ ) {
             map.lock( key );
