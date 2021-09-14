@@ -12,6 +12,7 @@ public class HazelcastClientNodeDMOptiLock {
         IMap<String, Value> map = hz.getMap( "mapOptiLock" );
         String key = "1";
         System.out.println( "Starting" );
+        boolean bool;
         for ( int k = 0; k < 1000; k++ ) {
             if ( k % 100 == 0 ) System.out.println( "At: " + k );
             for (; ; ) {
@@ -19,7 +20,13 @@ public class HazelcastClientNodeDMOptiLock {
                 Value newValue = new Value( oldValue );
                 newValue.amount++;
                 Thread.sleep( 10 );
-                if ( map.replace( key, oldValue, newValue ) )
+                if (map.containsKey(key) && map.get(key).equals(oldValue)) {
+                    map.put(key, newValue);
+                    bool = true;
+                } else {
+                    bool = false;
+                }
+                if (bool)
                     break;
             }
         }
