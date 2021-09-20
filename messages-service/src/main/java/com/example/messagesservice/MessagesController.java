@@ -6,8 +6,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/messages-service")
-public class MessagesServiceController {
+public class MessagesController {
 
+    private MessagesService messagesService;
+    public MessagesController(MessagesService messagesService) {
+        this.messagesService = messagesService;
+    }
     private void log(String log) {
         System.out.println(log);
     }
@@ -15,6 +19,6 @@ public class MessagesServiceController {
     @GetMapping
     public String getMessages() {
         log("Facade service sent a get request");
-        return "Message Service is not implemented yet";
+        return messagesService.getMessages();
     }
 }

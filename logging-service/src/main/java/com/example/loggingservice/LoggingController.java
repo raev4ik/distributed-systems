@@ -2,10 +2,6 @@ package com.example.loggingservice;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 @RestController
 @RequestMapping("/logging-service")
 public class LoggingController {
