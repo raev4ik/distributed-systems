@@ -5,6 +5,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
+import java.util.Date;
+
 public class AckConsumer {
     private final static String QUEUE_NAME = "task6";
     public static void main(String[] args) throws Exception {
@@ -16,9 +18,9 @@ public class AckConsumer {
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
-            System.out.println("AckConsumer message received: " + message);
+            System.out.println("AckConsumer message received: " + message + " at " + new Date());
             channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
-            System.out.println("AckConsumer message processed: " + message);
+            System.out.println("AckConsumer message processed: " + message + " at " + new Date());
         };
         channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
     }
