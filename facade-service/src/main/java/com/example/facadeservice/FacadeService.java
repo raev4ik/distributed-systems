@@ -3,6 +3,7 @@ package com.example.facadeservice;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -26,11 +27,11 @@ public class FacadeService {
             WebClient.create("http://localhost:8086/messages-service"),
             WebClient.create("http://localhost:8087/messages-service"));
 
-    private Connection connection;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
-    public FacadeService(Connection connection) {
-        this.connection = connection;
+    public FacadeService(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     private void log(String log) {
@@ -38,14 +39,7 @@ public class FacadeService {
     }
 
     public Mono<Void> addMessage(String text) {
-        log("Facade Service add message: " + text);
-        try {
-            Channel channel = connection.createChannel();
-            channel.queueDeclare(QUEUE, true, false, false, null);
-            channel.basicPublish("", QUEUE , null, text.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        rabbitTemplate.convertAndSend("lab6", text);
         return loggingServices.get(new Random().nextInt(loggingServices.size()))
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)

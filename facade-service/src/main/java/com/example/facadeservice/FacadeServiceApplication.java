@@ -1,8 +1,9 @@
 package com.example.facadeservice;
 
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -15,14 +16,23 @@ public class FacadeServiceApplication {
     }
 
     @Bean
-    public Connection connection() {
-        try {
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost("localhost");
-            return factory.newConnection();
-        } catch (Exception e) {
-            throw new BeanCreationException("connection", "Failed creating bean: com.rabbitmq.client.Connection", e);
-        }
+    public Queue myQueue() {
+        return new Queue("lab6", true);
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate() {
+        return new RabbitTemplate(connectionFactory());
+    }
+
+    @Bean
+    public CachingConnectionFactory connectionFactory() {
+        return new CachingConnectionFactory("localhost");
+    }
+
+    @Bean
+    public RabbitAdmin amqpAdmin() {
+        return new RabbitAdmin(connectionFactory());
     }
 
 }
