@@ -14,12 +14,13 @@ public class Producer {
         factory.setHost("localhost");
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
+            channel.basicQos(1);
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);
             for (int i = 1; i < 11; i++) {
                 channel.basicPublish("", QUEUE_NAME, null, ("message-" + i).getBytes(StandardCharsets.UTF_8));
                 System.out.println("Sent message: message-" + i);
                 Thread.sleep(2000);
             }
- }
+        }
     }
 }

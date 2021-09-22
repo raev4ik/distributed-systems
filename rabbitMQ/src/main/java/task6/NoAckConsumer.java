@@ -16,8 +16,9 @@ public class NoAckConsumer {
         channel.queueDeclare(QUEUE_NAME, true, false, false, null);
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
-            System.out.println("Message received: " + message);
+            System.out.println("NoAckConsumer Message received: " + message);
             channel.basicReject(delivery.getEnvelope().getDeliveryTag(),  true);
+            System.out.println("NoAckConsumer message requeue:" + message);
         };
         channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {
         });
