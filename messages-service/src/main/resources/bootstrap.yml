@@ -1,0 +1,18 @@
+server:
+  port: 8087
+spring:
+  application:
+    name: messages-service
+  cloud:
+    consul:
+      config:
+        enabled: true
+        watch:
+          enabled: true
+          delay: 1000
+        fail-fast: true
+      host: localhost
+      port: 8500
+      discovery:
+        healthCheckInterval: 20s
+        instance-id: ${spring.application.name}:${random.value}

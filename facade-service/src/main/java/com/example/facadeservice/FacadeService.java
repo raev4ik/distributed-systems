@@ -1,10 +1,10 @@
 package com.example.facadeservice;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,21 +17,23 @@ import java.util.UUID;
 @Component
 public class FacadeService {
 
-    private final String QUEUE = "lab6";
-
-    private final List<WebClient> loggingServices = List.of(
-            WebClient.create("http://localhost:8082/logging-service"),
-            WebClient.create("http://localhost:8083/logging-service"),
-            WebClient.create("http://localhost:8084/logging-service"));
-    private final List<WebClient> messagesServices = List.of(
-            WebClient.create("http://localhost:8086/messages-service"),
-            WebClient.create("http://localhost:8087/messages-service"));
-
     private final RabbitTemplate rabbitTemplate;
+    private final DiscoveryClient discoveryClient;
+
+    private List<ServiceInstance> loggingServices;
+    private List<ServiceInstance> messagesServices;
+
+    @Value("${logging.service.name}")
+    private String loggingServiceName;
+    @Value("${messages.service.name}")
+    private String messagesServiceName;
+    @Value("${queue.name}")
+    private String queueName;
 
     @Autowired
-    public FacadeService(RabbitTemplate rabbitTemplate) {
+    public FacadeService(RabbitTemplate rabbitTemplate, DiscoveryClient discoveryClient) {
         this.rabbitTemplate = rabbitTemplate;
+        this.discoveryClient = discoveryClient;
     }
 
     private void log(String log) {
@@ -39,8 +41,9 @@ public class FacadeService {
     }
 
     public Mono<Void> addMessage(String text) {
-        rabbitTemplate.convertAndSend("lab6", text);
-        return loggingServices.get(new Random().nextInt(loggingServices.size()))
+        loggingServices = discoveryClient.getInstances(loggingServiceName);
+        rabbitTemplate.convertAndSend(queueName,text);
+        return WebClient.create(loggingServices.get(new Random().nextInt(loggingServices.size())).getUri().toString())
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(new Message(UUID.randomUUID(), text))
@@ -50,13 +53,16 @@ public class FacadeService {
 
     public Mono<String> getMessages() {
         log("Facade Service get messages");
-
-        Mono<String> loggingServiceResponse = loggingServices.get(new Random().nextInt(loggingServices.size()))
+        loggingServices = discoveryClient.getInstances(loggingServiceName);
+        messagesServices = discoveryClient.getInstances(messagesServiceName);
+        Mono<String> loggingServiceResponse =
+                WebClient.create(discoveryClient.getInstances(loggingServiceName).get(new Random().nextInt(loggingServices.size())).getUri().toString())
                 .get()
                 .retrieve()
                 .bodyToMono(String.class);
 
-        Mono<String> messageServiceResponse = messagesServices.get(new Random().nextInt(messagesServices.size()))
+        Mono<String> messageServiceResponse =
+                WebClient.create(discoveryClient.getInstances(messagesServiceName).get(new Random().nextInt(messagesServices.size())).getUri().toString())
                 .get()
                 .retrieve()
                 .bodyToMono(String.class);

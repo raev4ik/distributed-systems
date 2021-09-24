@@ -3,7 +3,6 @@ package com.example.loggingservice;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/logging-service")
 public class LoggingController {
 
     private final LoggingService loggingService;

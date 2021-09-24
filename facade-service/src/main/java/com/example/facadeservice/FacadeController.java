@@ -4,7 +4,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/facade-service")
 public class FacadeController {
 
     private final FacadeService facadeService;

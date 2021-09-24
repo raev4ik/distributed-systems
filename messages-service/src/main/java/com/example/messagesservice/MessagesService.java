@@ -5,6 +5,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -15,7 +16,10 @@ import java.util.List;
 public class MessagesService {
     private List<String> messagesList = new ArrayList<>();
 
-    @RabbitListener(queues = "lab6")
+    @Value("${queue.name}")
+    private String queueName;
+
+    @RabbitListener(queues = ("${queue.name}"))
     public void listen(String message) {
         System.out.println("Message-service received message" + message);
         messagesList.add(message);
